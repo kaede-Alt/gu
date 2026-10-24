@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>梦角字卡传讯</title>
+<style>
+:root{--user-bubble-bg:#F5F5F5;--reply-bubble-bg:#FEFEFE;--user-bubble-border:#E7E7E7;--reply-bubble-border:#E4E4E4;--bubble-border-width:1px;--bubble-radius:12px;--chat-font-color:#2b2b2b;--user-font-color:#2b2b2b;--reply-font-color:#2b2b2b;--top-name-color:#b0b0b0;--top-name-size:16px;--top-arrow-color:#b0b0b0;--time-color:#b0b0b0;--tip-color:#a0a0a0;--theme-color:#d45d70;--chat-font-size:13px;--recall-font-color:#666666;--app-font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--app-font-family);-webkit-tap-highlight-color:transparent;}
+body,html{height:100%;background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);background-size:cover;background-position:center;overflow:hidden;background-attachment:fixed;}
+.app{display:flex;flex-direction:column;height:100vh;width:100vw;max-width:600px;margin:0 auto;background-color:transparent;position:relative;}
+header{position:absolute;top:0;left:0;width:100%;height:68px;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background-color:transparent;flex-shrink:0;z-index:100;}
+.header-btn{background-color:rgba(255,255,255,0.65);border:1px solid rgba(235,235,235,0.6);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);}
+.header-left-btn{width:42px;height:42px;border-radius:50%;color:var(--top-arrow-color);font-size:26px;font-weight:300;padding-bottom:4px;margin-left:-6px;flex-shrink:0;}
+.header-center-name{flex-grow:1;max-width:160px;margin:0 16px;height:42px;border-radius:21px;color:var(--top-name-color);font-size:var(--top-name-size);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;}
+.header-right-btn{width:42px;height:42px;border-radius:50%;overflow:hidden;background-size:cover;background-position:center;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42"><rect width="42" height="42" fill="%23a1d4f5"/><circle cx="12" cy="12" r="9" fill="%23fff" opacity="0.9"/><path d="M0 26 Q 21 18 42 28 L 42 42 L 0 42 Z" fill="%238cca65"/></svg>');flex-shrink:0;border:1px solid rgba(235,235,235,0.6);}
+.chat-area{flex-grow:1;padding:16px;padding-top:80px;padding-bottom:120px;overflow-y:auto;background-color:transparent;display:flex;flex-direction:column;gap:16px;}
+.date-divider{width:100%;text-align:center;font-size:12px;color:var(--tip-color);margin:10px 0;display:flex;justify-content:center;align-items:center;}
+.date-divider span{background-color:rgba(255,255,255,0.5);padding:4px 10px;border-radius:12px;}
+.message-row{display:flex;flex-direction:column;max-width:85%;position:relative;}
+.message-row.user{align-self:flex-end;align-items:flex-end;}
+.message-row.reply{align-self:flex-start;align-items:flex-start;}
+.bubble-row{display:flex;align-items:flex-end;gap:8px;width:100%;}
+.user .bubble-row{justify-content:flex-end;}
+.reply .bubble-row{justify-content:flex-start;}
+.bubble{padding:8px 11px;font-size:var(--chat-font-size);line-height:1.4;word-break:break-word;position:relative;color:var(--chat-font-color);border-radius:var(--bubble-radius);border-width:var(--bubble-border-width);border-style:solid;}
+.user .bubble{background-color:var(--user-bubble-bg);border-color:var(--user-bubble-border);color:var(--user-font-color);}
+.reply .bubble{background-color:var(--reply-bubble-bg);border-color:var(--reply-bubble-border);color:var(--reply-font-color);}
+.bubble.image-bubble{padding:0!important;background:transparent!important;border:none!important;}
+.bubble.image-bubble img{max-width:100%;max-height:150px;border-radius:var(--bubble-radius);display:block;}
+.bubble.voice-bubble{cursor:pointer;min-width:150px;}
+.vh{display:flex;align-items:center;gap:8px;}
+.vpb{width:22px;height:22px;background:rgba(0,0,0,0.1);border-radius:50%;display:flex;justify-content:center;align-items:center;flex-shrink:0;}
+.vpb::after{content:'';display:block;width:0;height:0;border-left:7px solid #555;border-top:5px solid transparent;border-bottom:5px solid transparent;margin-left:2px;}
+.vw{display:flex;align-items:center;gap:2px;height:16px;flex:1;}
+.vw span{width:2px;background:rgba(0,0,0,0.3);border-radius:1px;}
+.vw span:nth-child(1){height:6px;}.vw span:nth-child(2){height:12px;}.vw span:nth-child(3){height:8px;}.vw span:nth-child(4){height:14px;}.vw span:nth-child(5){height:4px;}.vw span:nth-child(6){height:10px;}.vw span:nth-child(7){height:6px;}
+.vd{font-size:11px;color:rgba(0,0,0,0.5);margin-left:auto;}
+.vt{display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.05);}
+.vtt{font-size:10px;color:rgba(0,0,0,0.4);margin-bottom:4px;}
+.vtx{font-size:13px;color:inherit;line-height:1.4;word-break:break-word;}
+.time{font-size:9px;color:var(--time-color);margin-bottom:4px;padding:0 2px;}
+.user .time{text-align:right;}.reply .time{text-align:left;}
+.quote-btn{width:26px;height:26px;border-radius:50%;background-color:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.quote-btn svg{width:16px;height:16px;stroke:#555;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;}
+.quote-block{background-color:rgba(255,255,255,0.6)!important;border-left:3px solid rgba(0,0,0,0.2)!important;padding:4px 8px;font-size:12px;color:rgba(0,0,0,0.6)!important;margin-top:6px;border-radius:4px;word-break:break-all;max-width:100%;display:flex;align-items:center;gap:6px;cursor:pointer;}
+.quote-block img{height:24px;width:auto;border-radius:2px;}
+@keyframes flashFadeIn{0%{opacity:0;transform:scale(0.98);}100%{opacity:1;transform:scale(1);}}
+.highlight-anim{animation:flashFadeIn .6s ease-out;}
+footer{position:absolute;bottom:0;left:0;width:100%;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,16px));background-color:transparent;flex-shrink:0;z-index:100;}
+.quote-preview{display:none;align-items:center;justify-content:space-between;background-color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.6);border-radius:8px;padding:6px 12px;margin-bottom:8px;font-size:13px;color:#333;}
+.quote-preview-text{flex-grow:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:10px;display:flex;align-items:center;gap:6px;}
+.quote-preview-text img{height:20px;border-radius:2px;}
+.close-quote-btn{background:none;border:none;color:#999;font-size:18px;cursor:pointer;padding:0 4px;}
+.input-box{display:flex;align-items:center;border:1px solid rgba(220,220,220,0.6);border-radius:24px;padding:4px 6px;background-color:rgba(255,255,255,0.65);backdrop-filter:blur(6px);}
+.emoji-btn{background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.emoji-btn svg{width:24px;height:24px;stroke:#b0b0b0;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.input-box input{flex-grow:1;min-width:0;border:none;outline:none;padding:8px 4px;font-size:15px;color:#333;background:transparent;}
+.input-box input::placeholder{color:#c0c0c0;}
+.send-btn{background-color:#c8c8c8;border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:4px;flex-shrink:0;}
+.send-btn svg{width:18px;height:18px;stroke:#ffffff;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+body.transparent-mode .header-btn,body.transparent-mode .input-box{background-color:rgba(255,255,255,0.1)!important;border:1px solid rgba(255,255,255,0.3)!important;}
+.emoji-panel{position:absolute;bottom:75px;left:16px;right:16px;height:280px;background-color:rgba(255,255,255,0.95);border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);border:1px solid #eee;display:none;flex-direction:column;z-index:9999;overflow:hidden;}
+.emoji-tabs{display:flex;border-bottom:1px solid #eee;background-color:#fafafa;}
+.emoji-tab{flex:1;text-align:center;padding:10px 0;font-size:13px;color:#666;cursor:pointer;border-bottom:2px solid transparent;}
+.emoji-tab.active{color:var(--theme-color);border-bottom-color:var(--theme-color);font-weight:500;}
+.emoji-panel-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #eee;}
+.emoji-panel-header button{background:none;border:none;color:#666;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:4px;}
+.emoji-panel-header .left-actions{display:flex;gap:5px;}
+.emoji-grid{flex-grow:1;padding:10px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:10px;overflow-y:auto;}
+.emoji-item{position:relative;min-width:40px;height:40px;padding:0 6px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border-radius:8px;background-color:#f8f8f8;border:1px solid transparent;}
+.emoji-item.selected{background-color:#e6f2ff;border:1px solid #a3c2e0;}
+.emoji-item img{max-width:50px;max-height:40px;border-radius:4px;pointer-events:none;}
+.emoji-checkbox{position:absolute;top:-4px;left:-4px;width:16px;height:16px;background-color:#fff;border:1px solid #ccc;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:10px;color:#fff;z-index:6;}
+.emoji-item.selected .emoji-checkbox{background-color:#a3c2e0;border-color:#a3c2e0;display:flex;}
+.emoji-delete-btn{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background-color:#ff4d4f;color:white;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;z-index:5;}
+.emoji-item.multi-select-mode .emoji-delete-btn{display:none!important;}
+.emoji-item:hover .emoji-delete-btn{opacity:1;}
+.empty-emoji{width:100%;text-align:center;color:#999;font-size:13px;margin-top:30px;}
+.settings-page{position:absolute;top:0;left:0;width:100%;height:100%;background-color:#f4f4f4;z-index:300;display:none;flex-direction:column;}
+.settings-header{display:flex;align-items:center;padding:12px 16px;background-color:#f8f8f8;border-bottom:1px solid #ebebeb;}
+.settings-header .back-btn{font-size:20px;color:#888;cursor:pointer;margin-right:10px;padding:0 10px;}
+.settings-header .title{font-size:16px;color:#333;font-weight:500;}
+.settings-tabs{display:flex;background-color:#fff;border-bottom:1px solid #eee;overflow-x:auto;flex-shrink:0;}
+.settings-tab{flex:1 0 auto;min-width:25%;text-align:center;padding:12px 14px;font-size:14px;color:#666;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.settings-tab.active{color:var(--theme-color);border-bottom-color:var(--theme-color);font-weight:500;}
+.settings-content{flex-grow:1;overflow-y:auto;padding:16px;}
+.settings-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;display:none;}
+.settings-section.active{display:block;}
+.settings-section h3{font-size:15px;color:#333;margin-bottom:12px;border-left:3px solid var(--theme-color);padding-left:8px;}
+.form-group{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed #eee;}
+.form-group:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.form-group label{font-size:14px;color:#555;flex-shrink:0;}
+.form-group input[type="text"],.form-group input[type="number"]{width:120px;padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:14px;outline:none;text-align:right;}
+.form-group input[type="color"]{width:40px;height:30px;border:1px solid #ddd;border-radius:4px;padding:0;cursor:pointer;}
+.avatar-upload-wrapper{display:flex;align-items:center;gap:12px;}
+.avatar-preview{width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid #ddd;display:none;}
+.avatar-upload-btn{padding:6px 12px;background-color:#f0f0f0;border-radius:6px;font-size:13px;color:#333;cursor:pointer;border:1px solid #ddd;}
+.custom-css-textarea{width:100%;height:100px;border:1px solid #ddd;border-radius:6px;padding:10px;font-size:12px;font-family:monospace;resize:vertical;outline:none;margin-top:8px;background-color:#fafafa;}
+.btn-danger{background-color:#ff4d4f;color:#fff;border:none;padding:10px;border-radius:6px;font-size:14px;cursor:pointer;width:100%;margin-bottom:10px;}
+.btn-primary{background-color:var(--theme-color);color:#fff;border:none;padding:10px;border-radius:8px;font-size:15px;cursor:pointer;width:100%;margin-top:10px;}
+.btn-success{background-color:#4CAF50;color:#fff;border:none;padding:10px;border-radius:6px;font-size:14px;cursor:pointer;width:100%;margin-bottom:10px;text-align:center;display:block;}
+.btn-info{background-color:#2196F3;color:#fff;border:none;padding:10px;border-radius:6px;font-size:14px;cursor:pointer;width:100%;margin-bottom:10px;text-align:center;display:block;}
+.slider-container{display:flex;align-items:center;gap:10px;width:100%;margin-top:8px;}
+.slider-container input[type=range]{flex-grow:1;-webkit-appearance:none;height:4px;background:#e5e5ea;border-radius:2px;outline:none;}
+.slider-container input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--theme-color);border-radius:50%;cursor:pointer;}
+.slider-val{font-size:13px;color:#666;width:40px;text-align:right;}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:400;}
+.modal{background:#fff;width:90%;max-width:400px;border-radius:16px;padding:20px;}
+.modal h3{margin-bottom:12px;font-size:16px;color:#333;text-align:center;}
+.modal p{font-size:12px;color:#888;margin-bottom:10px;text-align:center;}
+.modal textarea,.modal input[type="text"],.modal select{width:100%;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;outline:none;margin-bottom:12px;}
+.modal textarea{height:120px;resize:none;}
+.modal-btns{display:flex;justify-content:space-between;gap:10px;}
+.modal-btns button{flex:1;padding:10px;border-radius:8px;border:none;font-size:14px;cursor:pointer;}
+.btn-cancel{background:#f0f0f0;color:#666;}
+.btn-save{background:var(--theme-color);color:#fff;}
+.switch{position:relative;display:inline-block;width:44px;height:24px;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:24px;}
+.slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%;}
+input:checked + .slider{background-color:var(--theme-color);}
+input:checked + .slider:before{transform:translateX(20px);}
+.lib-search{display:flex;align-items:center;background:#f8f8f8;border-radius:10px;padding:8px 12px;margin-bottom:12px;}
+.lib-search input{flex:1;border:none;outline:none;font-size:14px;background:transparent;color:#333;}
+.lib-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;}
+.lib-tab{white-space:nowrap;padding:6px 14px;border-radius:15px;font-size:13px;background:#f0f0f5;color:#666;cursor:pointer;}
+.lib-tab.active{background:#1c1c1e;color:#fff;}
+.lib-tools{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#888;margin-bottom:10px;padding:0 4px;}
+.lib-list-wrapper{position:relative;margin-bottom:12px;}
+.lib-list{background:#f8f8f8;border-radius:12px;padding:8px;max-height:350px;overflow-y:auto;}
+.lib-item{display:flex;align-items:center;padding:12px 8px;border-bottom:1px solid #eee;}
+.lib-item:last-child{border-bottom:none;}
+.lib-item input[type="checkbox"]{margin-right:12px;cursor:pointer;}
+.lib-item-text{flex:1;font-size:14px;color:#333;word-break:break-word;}
+.lib-item-group{font-size:10px;color:#999;background:#e5e5ea;padding:2px 6px;border-radius:4px;margin-left:8px;}
+.lib-item-ops{display:flex;gap:10px;margin-left:10px;}
+.lib-item-ops svg{width:18px;height:18px;stroke:#999;fill:none;cursor:pointer;padding:4px;box-sizing:content-box;}
+.lib-scroll-btns{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;}
+.lib-scroll-btn{width:32px;height:32px;background:rgba(255,255,255,0.9);border:1px solid #ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:bold;color:#666;}
+.lib-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.lib-btn{padding:10px;border-radius:8px;border:1px solid #ddd;background:#fff;font-size:13px;color:#333;text-align:center;cursor:pointer;}
+.lib-btn.danger{color:#ff3b30;border-color:#ff3b30;}
+.lib-btn.primary{background:#1c1c1e;color:#fff;border-color:#1c1c1e;}
+.checkbox-group{display:flex;align-items:center;gap:8px;margin-bottom:15px;font-size:14px;color:#333;cursor:pointer;justify-content:center;}
+.system-row{width:100%;display:flex;flex-direction:column;align-items:center;margin:6px 0;gap:4px;}
+.system-bubble{background-color:rgba(255,255,255,0.5);padding:4px 12px;border-radius:12px;font-size:12px;color:var(--tip-color);text-align:center;max-width:90%;word-break:break-word;}
+.system-bubble.clickable{cursor:pointer;}
+.recall-detail{display:none;width:90%;background:rgba(255,255,255,0.9);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--recall-font-color);box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:4px;}
+.recall-detail-item{padding:8px 0;border-bottom:1px dashed #eee;display:flex;align-items:center;gap:8px;}
+.recall-detail-item:last-child{border-bottom:none;}
+.recall-detail-content{flex:1;min-width:0;font-size:12px;color:var(--recall-font-color);word-break:break-word;line-height:1.4;display:flex;align-items:center;flex-wrap:wrap;gap:4px;}
+.recall-detail-time{font-size:10px;color:#aaa;flex-shrink:0;margin-left:auto;}
+.recall-img-thumb{max-width:80px;max-height:80px;border-radius:4px;display:block;margin:2px 0;}
+.recall-voice-bar{display:flex;flex-direction:column;width:100%;background:rgba(0,0,0,0.04);border-radius:8px;padding:6px 8px;cursor:pointer;}
+.recall-voice-bar .vh{display:flex;align-items:center;gap:8px;}
+.recall-voice-bar .vpb{width:20px;height:20px;background:rgba(0,0,0,0.1);border-radius:50%;display:flex;justify-content:center;align-items:center;flex-shrink:0;}
+.recall-voice-bar .vpb::after{content:'';display:block;width:0;height:0;border-left:6px solid #555;border-top:4px solid transparent;border-bottom:4px solid transparent;margin-left:2px;}
+.recall-voice-bar .vw{display:flex;align-items:center;gap:2px;height:14px;flex:1;}
+.recall-voice-bar .vw span{width:2px;background:rgba(0,0,0,0.3);border-radius:1px;}
+.recall-voice-bar .vw span:nth-child(1){height:5px;}.recall-voice-bar .vw span:nth-child(2){height:10px;}.recall-voice-bar .vw span:nth-child(3){height:7px;}.recall-voice-bar .vw span:nth-child(4){height:12px;}.recall-voice-bar .vw span:nth-child(5){height:4px;}.recall-voice-bar .vw span:nth-child(6){height:8px;}.recall-voice-bar .vw span:nth-child(7){height:5px;}
+.recall-voice-bar .vd{font-size:10px;color:rgba(0,0,0,0.5);margin-left:auto;}
+.recall-voice-bar .vt{display:none;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);}
+.recall-voice-bar .vtt{font-size:9px;color:rgba(0,0,0,0.4);margin-bottom:3px;}
+.recall-voice-bar .vtx{font-size:11px;color:var(--recall-font-color);line-height:1.4;word-break:break-word;}
+.pat-tip{display:none;font-size:12px;color:#d45d70;background:#fff0f3;border-radius:8px;padding:6px 10px;margin-bottom:8px;line-height:1.4;}
+#statusBar{position:fixed;top:0;left:0;right:0;padding:6px 8px;background:#4CAF50;color:#fff;font-size:12px;z-index:999999;text-align:center;font-family:monospace;display:none;}
+</style>
+</head>
+<body>
+<div id="statusBar"></div>
+<div class="app">
+<header>
+<div class="header-btn header-left-btn">‹</div>
+<div class="header-btn header-center-name" id="headerName">名字</div>
+<div class="header-btn header-right-btn" id="avatarBtn" onclick="window.openSettings()"></div>
+</header>
+<main class="chat-area" id="chatArea"></main>
+<div class="emoji-panel" id="emojiPanel">
+<div class="emoji-tabs">
+<div class="emoji-tab active" data-type="emoji" onclick="window.switchEmojiTab('emoji', this)">Emoji</div>
+<div class="emoji-tab" data-type="kaomoji" onclick="window.switchEmojiTab('kaomoji', this)">颜文字</div>
+<div class="emoji-tab" data-type="image" onclick="window.switchEmojiTab('image', this)">图片表情</div>
+</div>
+<div class="emoji-panel-header">
+<div class="left-actions"><button onclick="window.openEmojiAdd()">批量添加</button><button id="multiSelectBtn" onclick="window.toggleMultiSelect()">多选删除</button></div>
+<button onclick="window.clearEmojiTab()" style="color:#ff4d4f;">清空全部</button>
+</div>
+<div class="emoji-grid" id="emojiGrid"></div>
+</div>
+<footer>
+<div class="quote-preview" id="quotePreview"><span class="quote-preview-text" id="quotePreviewText"></span><button class="close-quote-btn" onclick="window.cancelQuote()">×</button></div>
+<div class="input-box">
+<button class="emoji-btn" onclick="window.toggleEmojiPanel(event)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="8.5" cy="9.5" r="1.2" fill="#b0b0b0" stroke="none"></circle><circle cx="15.5" cy="9.5" r="1.2" fill="#b0b0b0" stroke="none"></circle><path d="M7.5 13.5c1.2 2.5 3.8 3.5 4.5 3.5s3.3-1 4.5-3.5"></path></svg>
+</button>
+<input type="text" id="msgInput" placeholder="发消息..." autocomplete="off" onkeypress="if(event.key==='Enter') window.handleSend()">
+<button class="send-btn" onclick="window.handleSend()">
+    <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+</div>
+</footer>
+<div class="settings-page" id="settingsPage">
+<div class="settings-header"><div class="back-btn" onclick="window.closeSettings()">‹</div><div class="title">设置</div></div>
+<div class="settings-tabs">
+<div class="settings-tab active" data-target="appearance" onclick="window.switchSettingTab('appearance', this)">外观</div>
+<div class="settings-tab" data-target="cards" onclick="window.switchSettingTab('cards', this)">字卡库</div>
+<div class="settings-tab" data-target="probability" onclick="window.switchSettingTab('probability', this)">概率</div>
+<div class="settings-tab" data-target="memory" onclick="window.switchSettingTab('memory', this)">内存</div>
+</div>
+<div class="settings-content">
+<div class="settings-section active" id="section-appearance">
+<h3>基础信息</h3>
+<div class="form-group"><label>梦角名字</label><input type="text" id="settingName" placeholder="输入名字" oninput="window.updateName(this.value)"></div>
+<div class="form-group"><label>梦角头像</label><div class="avatar-upload-wrapper"><img id="avatarPreview" class="avatar-preview" alt=""><label class="avatar-upload-btn">上传图片<input type="file" id="settingAvatarInput" accept="image/*" style="display:none;" onchange="window.handleAvatar(event)"></label></div></div>
+<h3 style="margin-top:20px;">顶栏样式</h3>
+<div class="form-group"><label>名字颜色</label><input type="color" id="settingTopNameColor" value="#b0b0b0" oninput="window.updateColor('topNameColor', '--top-name-color', this.value)"></div>
+<div class="form-group"><label>箭头颜色</label><input type="color" id="settingTopArrowColor" value="#b0b0b0" oninput="window.updateColor('topArrowColor', '--top-arrow-color', this.value)"></div>
+<div class="form-group" style="flex-direction:column;align-items:flex-start;"><label style="margin-bottom:8px;">名字大小</label><div class="slider-container"><input type="range" id="settingTopNameSizeRange" min="12" max="24" step="1" value="16" oninput="window.setTopNameSize(this.value)"><span class="slider-val" id="topNameSizeVal">16px</span></div></div>
+<h3 style="margin-top:20px;">聊天背景与字体</h3>
+<div class="form-group"><label>聊天背景图</label><div class="avatar-upload-wrapper"><label class="avatar-upload-btn">上传背景<input type="file" id="settingBgInput" accept="image/*" style="display:none;" onchange="window.handleBg(event)"></label><button class="avatar-upload-btn" onclick="window.resetBg()">恢复默认</button></div></div>
+<div class="form-group" style="flex-direction:column;align-items:flex-start;"><label style="margin-bottom:8px;">聊天气泡字号</label><div class="slider-container"><input type="range" id="settingFontSizeRange" min="10" max="24" step="1" value="13" oninput="window.setFontSize(this.value)"><span class="slider-val" id="fontSizeVal">13px</span></div></div>
+<div class="form-group"><label>对方气泡字体颜色</label><input type="color" id="settingReplyFontColor" value="#2b2b2b" oninput="window.updateColor('replyFontColor', '--reply-font-color', this.value)"></div>
+<div class="form-group"><label>我的气泡字体颜色</label><input type="color" id="settingUserFontColor" value="#2b2b2b" oninput="window.updateColor('userFontColor', '--user-font-color', this.value)"></div>
+<div class="form-group"><label>时间条字体颜色</label><input type="color" id="settingTimeColor" value="#b0b0b0" oninput="window.updateColor('timeColor', '--time-color', this.value)"></div>
+<div class="form-group"><label>提示条颜色</label><input type="color" id="settingDateColor" value="#a0a0a0" oninput="window.updateColor('dateColor', '--tip-color', this.value)"></div>
+<div class="form-group"><label>撤回内容字体颜色</label><input type="color" id="settingRecallFontColor" value="#666666" oninput="window.updateColor('recallFontColor', '--recall-font-color', this.value)"></div>
+<h3 style="margin-top:20px;">自定义字体</h3>
+<div class="form-group" style="flex-direction:column;align-items:flex-start;"><label style="margin-bottom:8px;">字体链接</label><input type="text" id="settingFontUrl" placeholder="CSS链接 或 字体文件链接" style="width:100%;text-align:left;" oninput="window.updateFont(this.value, document.getElementById('settingFontFamily').value)"><div style="font-size:11px;color:#999;line-height:1.7;margin-top:8px;background:#fafafa;border:1px dashed #e5e5e5;border-radius:6px;padding:8px 10px;width:100%;box-sizing:border-box;">支持字体文件直链（.ttf/.otf/.woff/.woff2）或 CSS 样式表链接</div></div>
+<div class="form-group" style="flex-direction:column;align-items:flex-start;"><label style="margin-bottom:8px;">字体名称 (Family)</label><input type="text" id="settingFontFamily" placeholder="例如：'Ma Shan Zheng'" style="width:100%;text-align:left;" oninput="window.updateFont(document.getElementById('settingFontUrl').value, this.value)"></div>
+<div id="fontPreview" style="padding:12px;background:#f8f8f8;border-radius:8px;text-align:center;margin-bottom:15px;border:1px solid #ddd;color:#333;">字体预览效果：你好，梦角！ Aa Bb 123</div>
+<h3 style="margin-top:20px;">系统设置</h3>
+<div class="form-group"><label>顶底栏胶囊半透明</label><label class="switch"><input type="checkbox" id="settingTransparentHeaderFooter" onchange="window.toggleTransparentMode(this.checked)"><span class="slider"></span></label></div>
+<div class="form-group"><label>全屏模式</label><label class="switch"><input type="checkbox" id="settingFullscreen" onchange="window.toggleFullscreen(this.checked)"><span class="slider"></span></label></div>
+<h3 style="margin-top:20px;">自定义 CSS</h3>
+<textarea class="custom-css-textarea" id="settingCustomCss" oninput="window.updateCustomCss(this.value)"></textarea>
+<div style="display:flex;gap:10px;margin-top:8px;margin-bottom:10px;">
+<button class="avatar-upload-btn" style="flex:1;" onclick="window.fillPresetBubbleCss()">填入预设气泡样式</button>
+<button class="avatar-upload-btn" style="flex:1;" onclick="window.clearCustomCss()">清空自定义</button>
+</div>
+<button class="btn-primary" onclick="window.saveAndCloseAppearance()">保存并关闭外观设置</button>
+</div>
+<div class="settings-section" id="section-cards">
+<div class="lib-search"><input type="text" id="libSearchInp" placeholder="搜索字卡内容..." oninput="window.renderLib()"></div>
+<div class="lib-tabs" id="libGroupTabs"></div>
+<div class="lib-tools">
+<label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="libSelAll" onchange="window.toggleSelAll(this.checked)"> 全选</label>
+<span id="libTotalText">共 0 张</span>
+<span id="libSelCount">已选 0 项</span>
+</div>
+<div id="patTip" class="pat-tip">提示：拍一拍内容只需填写后缀，发送时会自动添加「<span id="patTipName">名字</span> 拍了拍我」。</div>
+<div class="lib-list-wrapper">
+<div class="lib-list" id="libCardList"></div>
+<div class="lib-scroll-btns"><div class="lib-scroll-btn" onclick="window.scrollLibToTop()">↑</div><div class="lib-scroll-btn" onclick="window.scrollLibToBottom()">↓</div></div>
+</div>
+<div class="lib-actions">
+<button class="lib-btn primary" onclick="window.openBatchAdd()">批量增加</button>
+<button class="lib-btn" onclick="window.openMove()">移动分组</button>
+<button class="lib-btn" onclick="window.doDedupCards()">一键去重</button>
+<button class="lib-btn danger" onclick="window.doBatchDel()">批量删除</button>
+<button class="lib-btn danger" onclick="window.doDelAll()">删除全部</button>
+<button class="lib-btn" onclick="window.openGroupManage()">管理分组</button>
+</div>
+</div>
+<div class="settings-section" id="section-probability">
+<h3>回复时间</h3>
+<div class="form-group"><label>最低回复延迟 (秒)</label><input type="number" id="settingDelayMin" min="0" step="0.1" value="1"></div>
+<div class="form-group"><label>最高回复延迟 (秒)</label><input type="number" id="settingDelayMax" min="0" step="0.1" value="3"></div>
+<h3 style="margin-top:20px;">特殊事件概率</h3>
+<div class="form-group"><label>拍一拍概率 (%)</label><input type="number" id="settingPatProb" min="0" max="100" value="10"></div>
+<div class="form-group"><label>撤回消息概率 (%)</label><input type="number" id="settingRecallProb" min="0" max="100" value="10"></div>
+<h3 style="margin-top:20px;">回复类型权重</h3>
+<div class="form-group"><label>文字字卡</label><input type="number" id="settingWeightText" min="0" value="60"></div>
+<div class="form-group"><label>语音消息</label><input type="number" id="settingWeightVoice" min="0" value="15"></div>
+<div class="form-group"><label>图片表情</label><input type="number" id="settingWeightImage" min="0" value="10"></div>
+<h3 style="margin-top:20px;">拼字卡</h3>
+<div class="form-group" style="align-items:flex-start;"><div><label>开启拼字卡</label></div><label class="switch"><input type="checkbox" id="settingEnableCombine"><span class="slider"></span></label></div>
+<div class="form-group"><label>最低字卡数</label><input type="number" id="settingCombineMin" min="1" value="1"></div>
+<div class="form-group"><label>最高字卡数</label><input type="number" id="settingCombineMax" min="1" value="3"></div>
+<h3 style="margin-top:20px;">附带规则</h3>
+<div class="form-group"><label>附带图片概率 (%)</label><input type="number" id="settingAttachImageProb" min="0" max="100" value="20"></div>
+<div class="form-group"><label>附带 Emoji 概率 (%)</label><input type="number" id="settingAttachEmojiProb" min="0" max="100" value="20"></div>
+<div class="form-group" style="align-items:flex-start;"><div><label>混合模式</label></div><label class="switch"><input type="checkbox" id="settingMixedMode" checked><span class="slider"></span></label></div>
+<h3 style="margin-top:20px;">引用概率</h3>
+<div class="form-group"><label>引用我的话概率 (%)</label><input type="number" id="settingQuoteChance" min="0" max="100" value="40"></div>
+<button class="btn-primary" onclick="window.saveProbability()">保存概率设置</button>
+</div>
+<div class="settings-section" id="section-memory">
+<h3>全局数据备份</h3>
+<button class="btn-primary" style="background-color:#2196F3; margin-bottom:10px;" onclick="window.exportAllData()">导出所有数据 (JSON)</button>
+<label class="btn-success" style="display:block; text-align:center;">导入所有数据 (JSON)<input type="file" id="importAllInput" accept=".json,application/json" style="display:none;" onchange="window.importAllData(event)"></label>
+<p style="font-size:12px;color:#888;margin-top:10px;">包含字卡、表情包、聊天记录、外观设置等全部内容。导入会覆盖当前数据并刷新页面。</p>
+
+<h3 style="margin-top:20px;">单一数据管理</h3>
+<button class="btn-success" onclick="window.exportCards()">仅导出字卡 (JSON)</button>
+<label class="btn-info">仅导入字卡 (JSON)<input type="file" id="importCardsInput" accept=".json,application/json" style="display:none;" onchange="window.importCards(event)"></label>
+<h3 style="margin-top:20px;">聊天记录</h3>
+<button class="btn-danger" style="background-color:#ff8c1a;" onclick="window.clearChat()">删除当前聊天记录</button>
+<h3 style="margin-top:20px;">清理数据</h3>
+<button class="btn-danger" onclick="window.clearEmojis()">清空所有表情包</button>
+<button class="btn-danger" style="background-color:#333;" onclick="window.resetAll()">恢复出厂设置 (清空所有)</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 弹窗区 -->
+<div class="modal-overlay" id="emojiModalOverlay"><div class="modal"><h3 id="emojiModalTitle">批量添加</h3><p id="emojiModalDesc">输入内容（空格/换行分隔，自动去重）。</p><textarea id="emojiInputArea"></textarea><div class="modal-btns"><button class="btn-cancel" onclick="window.closeModal('emojiModalOverlay')">取消</button><button class="btn-save" onclick="window.saveEmojiAdd()">导入</button></div></div></div>
+<div class="modal-overlay" id="imageModalOverlay"><div class="modal"><h3>批量上传图片表情</h3><p>支持 JPG / PNG / GIF。</p><label style="display:block;border:2px dashed #ddd;border-radius:8px;padding:30px;text-align:center;color:#888;margin-bottom:16px;cursor:pointer;">点击此处选择图片<input type="file" id="imageFileInput" multiple accept="image/*,.gif" style="display:none;" onchange="window.handleImageUpload(event)"></label><div class="modal-btns"><button class="btn-cancel" onclick="window.closeModal('imageModalOverlay')">取消</button></div></div></div>
+<div class="modal-overlay" id="cardEditOverlay"><div class="modal"><h3>编辑字卡</h3><input type="text" id="editCardText" placeholder="字卡内容"><label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">所属分组</label><select id="editCardGroup"></select><div id="editPatTip" class="pat-tip" style="margin-top:6px;">仅需填写后缀，发送时会自动添加「<span id="editPatTipName">名字</span> 拍了拍我」。</div><div class="modal-btns" style="margin-top:16px;"><button class="btn-cancel" onclick="window.closeModal('cardEditOverlay')">取消</button><button class="btn-save" onclick="window.saveCardEdit()">保存</button></div></div></div>
+<div class="modal-overlay" id="cardBatchAddOverlay"><div class="modal"><h3>批量增加字卡</h3><p>每行一张字卡。</p><textarea id="batchAddTextArea"></textarea><label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">加入分组</label><select id="batchAddGroup"></select><div id="batchAddPatTip" class="pat-tip" style="margin-top:6px;">仅需填写后缀，发送时会自动添加「<span id="batchAddPatTipName">名字</span> 拍了拍我」。</div><div class="modal-btns" style="margin-top:16px;"><button class="btn-cancel" onclick="window.closeModal('cardBatchAddOverlay')">取消</button><button class="btn-save" onclick="window.saveBatchAdd()">保存</button></div></div></div>
+<div class="modal-overlay" id="groupManageOverlay"><div class="modal"><h3>管理分组</h3><div id="groupManageList" style="max-height:200px;overflow-y:auto;margin-bottom:15px;border:1px solid #eee;border-radius:8px;padding:8px;"></div><div style="display:flex;gap:8px;"><input type="text" id="newGroupName" placeholder="新分组名称" style="flex:1;margin-bottom:0;"><button class="btn-save" onclick="window.addNewGroup()" style="width:80px;border-radius:8px;">添加</button></div><div class="modal-btns" style="margin-top:16px;"><button class="btn-cancel" onclick="window.closeModal('groupManageOverlay')">关闭</button></div></div></div>
+<div class="modal-overlay" id="deleteGroupOverlay"><div class="modal"><h3>删除分组</h3><p id="deleteGroupText" style="margin-bottom:15px;color:#333;font-weight:500;">确定要删除该分组吗？</p><label class="checkbox-group"><input type="checkbox" id="deleteGroupCardsCheckbox">同时删除该分组内的所有字卡</label><div class="modal-btns"><button class="btn-cancel" onclick="window.closeModal('deleteGroupOverlay')">取消</button><button class="btn-save" style="background:#ff3b30;" onclick="window.confirmDeleteGroup()">确认删除</button></div></div></div>
+<div class="modal-overlay" id="moveGroupOverlay"><div class="modal"><h3>移动分组</h3><p>将选中的字卡移动到：</p><select id="moveTargetGroup"></select><div class="modal-btns" style="margin-top:16px;"><button class="btn-cancel" onclick="window.closeModal('moveGroupOverlay')">取消</button><button class="btn-save" onclick="window.confirmMove()">确认移动</button></div></div></div>
+<style id="customCssStyle"></style>
+
+<script>
+window.onerror = function(msg, url, line) {
+    if (msg !== 'Script error.' && msg.indexOf('Script error') === -1) {
+        var bar = document.getElementById('statusBar');
+        if (bar) {
+            bar.style.display = 'block';
+            bar.style.background = '#ff3b30';
+            bar.textContent = '❌ ' + msg;
+        }
+    }
+    return false;
+};
+
+var KEY_CARDS = 'yume_v11_cards';
+var KEY_GROUPS = 'yume_v11_groups';
+var KEY_EMOJI = 'yume_v11_emoji';
+var KEY_SETTINGS = 'yume_v11_settings';
+var KEY_CHAT = 'yume_v11_chat';
+
+var libraryData = { groups: ['默认分组','拍一拍'], cards: [] };
+var emojiStore = { emoji: [], kaomoji: [], image: [] };
+var settings = { name: '名字', avatar: '', bgImage: '', delayMin: 1, delayMax: 3, patProb: 10, recallProb: 10, weightText: 60, weightVoice: 15, weightImage: 10, enableCombine: false, combineMin: 1, combineMax: 3, attachImageProb: 20, attachEmojiProb: 20, mixedMode: true, quoteChance: 40, fontSize: 13, topNameSize: 16, chatFontColor: '#2b2b2b', userFontColor: '#2b2b2b', replyFontColor: '#2b2b2b', topNameColor: '#b0b0b0', topArrowColor: '#b0b0b0', timeColor: '#b0b0b0', dateColor: '#a0a0a0', recallFontColor: '#666666', customFontUrl: '', customFontFamily: '', transparentHeaderFooter: false, customCss: '' };
+var chatHistory = [];
+
+var lastUserTs = 0, lastReplyTs = 0, pendingQuote = null;
+var currentEmojiTab = 'emoji', isMultiSelect = false;
+var selectedItems = {}, selectedItemsCount = 0;
+var lastMsgDateStr = '';
+var currentGroupFilter = '全部';
+var selectedCards = {}, selectedCardsCount = 0;
+var editingId = null, movingIds = [];
+var userHistory = [];
+var isForcedFS = false, deleteGroupTarget = '';
+
+var SVG_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>';
+var SVG_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
+var SVG_QUOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-4-4 4-4M5 10h11a4 4 0 0 1 4 4v4"/></svg>';
+
+window.compressImage = function(base64Str, maxWidth, maxHeight, quality, callback) {
+    var img = new Image();
+    img.onload = function() {
+        var width = img.width, height = img.height;
+        if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+        if (height > maxHeight) { width = Math.round(width * maxHeight / height); height = maxHeight; }
+        var canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        var dataUrl = canvas.toDataURL('image/jpeg', quality || 0.8);
+        callback(dataUrl);
+    };
+    img.src = base64Str;
+};
+
+window.saveSettings = function() { try { localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings)); } catch(e){} };
+window.saveData = function() { try { localStorage.setItem(KEY_CARDS, JSON.stringify(libraryData.cards)); localStorage.setItem(KEY_GROUPS, JSON.stringify(libraryData.groups)); } catch(e){} };
+window.saveEmoji = function() { try { localStorage.setItem(KEY_EMOJI, JSON.stringify(emojiStore)); } catch(e){} };
+window.saveChat = function() { try { localStorage.setItem(KEY_CHAT, JSON.stringify(chatHistory)); } catch(e){} };
+
+window.setVar = function(name, val) { document.documentElement.style.setProperty(name, val); };
+
+window.loadData = function() {
+    try {
+        var c = localStorage.getItem(KEY_CARDS); 
+        if (c) { 
+            var p = JSON.parse(c); 
+            if (p && p.length) { 
+                for (var i=0;i<p.length;i++) {
+                    if(p[i] && p[i].text) {
+                        if (!p[i].id || p[i].id === 'undefined') {
+                            p[i].id = 'card_' + Date.now() + '_' + i;
+                        }
+                        p[i].id = String(p[i].id);
+                        libraryData.cards.push(p[i]); 
+                    }
+                } 
+            } 
+        }
+        var g = localStorage.getItem(KEY_GROUPS); if (g) { var p2 = JSON.parse(g); if (p2 && p2.length > 0) libraryData.groups = p2; }
+        if (libraryData.groups.indexOf('拍一拍') === -1) libraryData.groups.push('拍一拍');
+        
+        var e = localStorage.getItem(KEY_EMOJI); if (e) { var p3 = JSON.parse(e); if (p3) { if(p3.emoji) emojiStore.emoji = p3.emoji; if(p3.kaomoji) emojiStore.kaomoji = p3.kaomoji; if(p3.image) emojiStore.image = p3.image; } }
+        
+        var s = localStorage.getItem(KEY_SETTINGS); if (s) { var p4 = JSON.parse(s); if (p4) { for(var k in p4) if(p4.hasOwnProperty(k)) settings[k] = p4[k]; } }
+        
+        var h = localStorage.getItem(KEY_CHAT); if (h) { var p5 = JSON.parse(h); if (p5 && p5.length) { for(var j=0;j<p5.length;j++) if(p5[j] && typeof p5[j] === 'object') chatHistory.push(p5[j]); } }
+    } catch(e) { console.log(e); }
+};
+
+window.applySettingsToUI = function() {
+    var hn = document.getElementById('headerName'); if(hn) hn.textContent = settings.name || '名字';
+    var ab = document.getElementById('avatarBtn'); if(ab && settings.avatar) ab.style.backgroundImage = 'url(' + settings.avatar + ')';
+    document.body.style.backgroundImage = settings.bgImage ? 'url(' + settings.bgImage + ')' : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
+    
+    window.setVar('--chat-font-size', settings.fontSize + 'px');
+    window.setVar('--chat-font-color', settings.chatFontColor);
+    window.setVar('--user-font-color', settings.userFontColor || '#2b2b2b');
+    window.setVar('--reply-font-color', settings.replyFontColor || '#2b2b2b');
+    window.setVar('--top-name-color', settings.topNameColor);
+    window.setVar('--top-name-size', settings.topNameSize + 'px');
+    window.setVar('--top-arrow-color', settings.topArrowColor);
+    window.setVar('--time-color', settings.timeColor);
+    window.setVar('--tip-color', settings.dateColor);
+    window.setVar('--recall-font-color', settings.recallFontColor || '#666666');
+    
+    if (settings.transparentHeaderFooter) document.body.className = 'transparent-mode';
+    else document.body.className = '';
+    
+    var ccs = document.getElementById('customCssStyle'); if(ccs) ccs.innerHTML = settings.customCss || '';
+    window.applyCustomFont(settings.customFontUrl, settings.customFontFamily);
+    var ptn = document.getElementById('patTipName'); if(ptn) ptn.textContent = settings.name || '名字';
+    var etn = document.getElementById('editPatTipName'); if(etn) etn.textContent = settings.name || '名字';
+    var btn = document.getElementById('batchAddPatTipName'); if(btn) btn.textContent = settings.name || '名字';
+};
+
+window.applyCustomFont = function(url, family) {
+    var oldLink = document.getElementById('dynFontLink'); if (oldLink && oldLink.parentNode) oldLink.parentNode.removeChild(oldLink);
+    var oldStyle = document.getElementById('dynFontStyle'); if (oldStyle && oldStyle.parentNode) oldStyle.parentNode.removeChild(oldStyle);
+    url = (url||'').replace(/^\s+|\s+$/g, ''); family = (family||'').replace(/^\s+|\s+$/g, '');
+    if (!url) { window.setVar('--app-font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'); return; }
+    
+    var cleanUrl = url.toLowerCase().split('?')[0];
+    if (cleanUrl.indexOf('.ttf') !== -1 || cleanUrl.indexOf('.otf') !== -1 || cleanUrl.indexOf('.woff') !== -1) {
+        var st = document.createElement('style'); st.id = 'dynFontStyle';
+        st.textContent = '@font-face{font-family:"YumeFont";src:url("'+url+'");font-display:swap;}';
+        document.head.appendChild(st);
+        window.setVar('--app-font-family', '"YumeFont", ' + (family||'-apple-system,sans-serif'));
+    } else {
+        var lk = document.createElement('link'); lk.id = 'dynFontLink'; lk.rel = 'stylesheet'; lk.href = url;
+        document.head.appendChild(lk);
+        if (family) window.setVar('--app-font-family', family);
+    }
+};
+
+// ====== 设置操作 ======
+window.openSettings = function() {
+    document.getElementById('settingsPage').style.display = 'flex';
+    document.getElementById('emojiPanel').style.display = 'none';
+    document.getElementById('settingName').value = settings.name;
+    document.getElementById('settingDelayMin').value = settings.delayMin;
+    document.getElementById('settingDelayMax').value = settings.delayMax;
+    document.getElementById('settingPatProb').value = settings.patProb;
+    document.getElementById('settingRecallProb').value = settings.recallProb;
+    document.getElementById('settingWeightText').value = settings.weightText;
+    document.getElementById('settingWeightVoice').value = settings.weightVoice;
+    document.getElementById('settingWeightImage').value = settings.weightImage;
+    document.getElementById('settingEnableCombine').checked = settings.enableCombine;
+    document.getElementById('settingCombineMin').value = settings.combineMin;
+    document.getElementById('settingCombineMax').value = settings.combineMax;
+    document.getElementById('settingAttachImageProb').value = settings.attachImageProb;
+    document.getElementById('settingAttachEmojiProb').value = settings.attachEmojiProb;
+    document.getElementById('settingMixedMode').checked = settings.mixedMode;
+    document.getElementById('settingQuoteChance').value = settings.quoteChance;
+    document.getElementById('settingTransparentHeaderFooter').checked = settings.transparentHeaderFooter;
+    
+    document.getElementById('settingUserFontColor').value = settings.userFontColor || '#2b2b2b';
+    document.getElementById('settingReplyFontColor').value = settings.replyFontColor || '#2b2b2b';
+    document.getElementById('settingTopNameColor').value = settings.topNameColor || '#b0b0b0';
+    document.getElementById('settingTopArrowColor').value = settings.topArrowColor || '#b0b0b0';
+    document.getElementById('settingTopNameSizeRange').value = settings.topNameSize;
+    document.getElementById('topNameSizeVal').textContent = settings.topNameSize + 'px';
+    document.getElementById('settingTimeColor').value = settings.timeColor || '#b0b0b0';
+    document.getElementById('settingDateColor').value = settings.dateColor || '#a0a0a0';
+    document.getElementById('settingRecallFontColor').value = settings.recallFontColor || '#666666';
+    document.getElementById('settingFontUrl').value = settings.customFontUrl || '';
+    document.getElementById('settingFontFamily').value = settings.customFontFamily || '';
+    document.getElementById('settingFontSizeRange').value = settings.fontSize;
+    document.getElementById('fontSizeVal').textContent = settings.fontSize + 'px';
+    document.getElementById('settingCustomCss').value = settings.customCss || '';
+    
+    if (settings.avatar) { document.getElementById('avatarPreview').src = settings.avatar; document.getElementById('avatarPreview').style.display = 'block'; }
+    window.renderLib();
+};
+
+window.closeSettings = function() { document.getElementById('settingsPage').style.display = 'none'; };
+
+window.switchSettingTab = function(target, el) {
+    var tabs = document.getElementsByClassName('settings-tab');
+    for(var i=0;i<tabs.length;i++) tabs[i].className = 'settings-tab';
+    el.className = 'settings-tab active';
+    var secs = document.getElementsByClassName('settings-section');
+    for(var i=0;i<secs.length;i++) secs[i].className = 'settings-section';
+    document.getElementById('section-' + target).className = 'settings-section active';
+};
+
+window.updateName = function(v) {
+    settings.name = v.replace(/^\s+|\s+$/g, '') || '名字';
+    document.getElementById('headerName').textContent = settings.name;
+    document.getElementById('patTipName').textContent = settings.name;
+    document.getElementById('editPatTipName').textContent = settings.name;
+    document.getElementById('batchAddPatTipName').textContent = settings.name;
+    window.saveSettings();
+};
+
+window.handleAvatar = function(e) {
+    var f = e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev) { 
+        window.compressImage(ev.target.result, 200, 200, 0.8, function(compressed) {
+            settings.avatar = compressed; 
+            document.getElementById('avatarPreview').src = settings.avatar; 
+            document.getElementById('avatarPreview').style.display = 'block'; 
+            document.getElementById('avatarBtn').style.backgroundImage = 'url(' + settings.avatar + ')'; 
+            window.saveSettings(); 
+        });
+    };
+    r.readAsDataURL(f);
+};
+
+window.handleBg = function(e) {
+    var f = e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev) { 
+        window.compressImage(ev.target.result, 800, 1500, 0.8, function(compressed) {
+            settings.bgImage = compressed; 
+            document.body.style.backgroundImage = 'url(' + settings.bgImage + ')'; 
+            window.saveSettings(); 
+        });
+    };
+    r.readAsDataURL(f);
+};
+
+window.resetBg = function() { settings.bgImage = ''; document.body.style.backgroundImage = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'; window.saveSettings(); };
+
+window.toggleTransparentMode = function(checked) {
+    settings.transparentHeaderFooter = checked;
+    if (checked) document.body.className = 'transparent-mode';
+    else document.body.className = '';
+    window.saveSettings();
+};
+
+window.toggleFullscreen = function(checked) {
+    isForcedFS = checked;
+    if (checked) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); }
+    else { if (document.exitFullscreen) document.exitFullscreen().catch(function(){}); }
+};
+
+window.updateColor = function(key, varName, val) {
+    settings[key] = val;
+    window.setVar(varName, val);
+    window.saveSettings();
+};
+
+window.updateFont = function(url, family) {
+    settings.customFontUrl = url || '';
+    settings.customFontFamily = family || '';
+    window.applyCustomFont(settings.customFontUrl, settings.customFontFamily);
+    window.saveSettings();
+};
+
+window.setFontSize = function(v) {
+    settings.fontSize = parseInt(v) || 13;
+    window.setVar('--chat-font-size', settings.fontSize + 'px');
+    var el = document.getElementById('fontSizeVal'); if(el) el.textContent = settings.fontSize + 'px';
+    window.saveSettings();
+};
+
+window.setTopNameSize = function(v) {
+    settings.topNameSize = parseInt(v) || 16;
+    window.setVar('--top-name-size', settings.topNameSize + 'px');
+    var el = document.getElementById('topNameSizeVal'); if(el) el.textContent = settings.topNameSize + 'px';
+    window.saveSettings();
+};
+
+window.updateCustomCss = function(v) { 
+    settings.customCss = v; 
+    document.getElementById('customCssStyle').innerHTML = v; 
+    window.saveSettings(); 
+};
+
+window.fillPresetBubbleCss = function() {
+    var p = '.message-received{border-radius:20px!important;background:rgba(255,255,255,0.25)!important;backdrop-filter:blur(10px)!important;border:1px solid rgba(255,255,255,0.4)!important;color:#ffffff!important;text-shadow:0 1px 3px rgba(0,0,0,0.35)!important;}\n.message-sent{border-radius:20px!important;background:rgba(0,0,0,0.25)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,0.25)!important;color:#ffffff!important;text-shadow:0 1px 3px rgba(0,0,0,0.3)!important;}';
+    document.getElementById('settingCustomCss').value = p;
+    window.updateCustomCss(p);
+};
+
+window.clearCustomCss = function() {
+    document.getElementById('settingCustomCss').value = '';
+    window.updateCustomCss('');
+};
+
+window.saveAndCloseAppearance = function() {
+    try {
+        window.applySettingsToUI(); 
+        window.saveSettings();
+    } catch(e) { console.log('保存报错', e); }
+    alert('外观设置已保存'); 
+    window.closeSettings();
+};
+
+window.saveProbability = function() {
+    settings.delayMin = parseFloat(document.getElementById('settingDelayMin').value) || 1;
+    settings.delayMax = parseFloat(document.getElementById('settingDelayMax').value) || 3;
+    if (settings.delayMax < settings.delayMin) settings.delayMax = settings.delayMin;
+    settings.patProb = parseFloat(document.getElementById('settingPatProb').value) || 0;
+    settings.recallProb = parseFloat(document.getElementById('settingRecallProb').value) || 0;
+    settings.weightText = parseFloat(document.getElementById('settingWeightText').value) || 0;
+    settings.weightVoice = parseFloat(document.getElementById('settingWeightVoice').value) || 0;
+    settings.weightImage = parseFloat(document.getElementById('settingWeightImage').value) || 0;
+    settings.enableCombine = document.getElementById('settingEnableCombine').checked;
+    settings.combineMin = Math.max(1, parseInt(document.getElementById('settingCombineMin').value) || 1);
+    settings.combineMax = Math.max(settings.combineMin, parseInt(document.getElementById('settingCombineMax').value) || 3);
+    settings.attachImageProb = parseFloat(document.getElementById('settingAttachImageProb').value) || 0;
+    settings.attachEmojiProb = parseFloat(document.getElementById('settingAttachEmojiProb').value) || 0;
+    settings.mixedMode = document.getElementById('settingMixedMode').checked;
+    settings.quoteChance = parseFloat(document.getElementById('settingQuoteChance').value) || 0;
+    window.saveSettings(); alert('概率设置已保存');
+};
+
+// ====== 字卡库逻辑 ======
+window.renderLib = function() {
+    var tabs = document.getElementById('libGroupTabs'); tabs.innerHTML = '';
+    var allTab = document.createElement('div'); allTab.className = 'lib-tab' + (currentGroupFilter === '全部' ? ' active' : ''); allTab.textContent = '全部'; allTab.onclick = function(){ currentGroupFilter='全部'; window.renderLib(); }; tabs.appendChild(allTab);
+    for (var i=0; i<libraryData.groups.length; i++) {
+        (function(g){
+            var t = document.createElement('div'); t.className = 'lib-tab' + (currentGroupFilter === g ? ' active' : ''); t.textContent = g; t.onclick = function(){ currentGroupFilter=g; window.renderLib(); }; tabs.appendChild(t);
+        })(libraryData.groups[i]);
+    }
+    
+    var q = document.getElementById('libSearchInp').value.replace(/^\s+|\s+$/g, '').toLowerCase();
+    var filtered = [];
+    for (var j=0; j<libraryData.cards.length; j++) {
+        var c = libraryData.cards[j];
+        if (currentGroupFilter === '全部') { if (c.group === '拍一拍') continue; }
+        else { if (c.group !== currentGroupFilter) continue; }
+        if (q && (c.text||'').toLowerCase().indexOf(q) === -1) continue;
+        filtered.push(c);
+    }
+    
+    document.getElementById('libTotalText').textContent = '共 ' + libraryData.cards.length + ' 张';
+    document.getElementById('libSelCount').textContent = '已选 ' + selectedCardsCount + ' 项';
+    document.getElementById('patTip').style.display = (currentGroupFilter === '拍一拍') ? 'block' : 'none';
+    
+    var list = document.getElementById('libCardList'); list.innerHTML = '';
+    if (filtered.length === 0) { list.innerHTML = '<div style="text-align:center;color:#aaa;font-size:13px;padding:20px 0;">暂无字卡</div>'; return; }
+    
+    for (var m=0; m<filtered.length; m++) {
+        (function(card){
+            var cid = String(card.id);
+            var el = document.createElement('div'); el.className = 'lib-item';
+            var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!selectedCards[cid];
+            cb.onchange = function(e){ if(e.target.checked){ selectedCards[cid]=true; selectedCardsCount++; } else { delete selectedCards[cid]; selectedCardsCount--; } document.getElementById('libSelCount').textContent = '已选 ' + selectedCardsCount + ' 项'; };
+            var txt = document.createElement('div'); txt.className = 'lib-item-text'; txt.textContent = card.text || '';
+            if (currentGroupFilter === '全部') { var gp = document.createElement('span'); gp.className='lib-item-group'; gp.textContent=card.group; txt.appendChild(gp); }
+            
+            var ops = document.createElement('div'); ops.className = 'lib-item-ops';
+            ops.innerHTML = SVG_EDIT + SVG_DELETE;
+            var svgs = ops.getElementsByTagName('svg');
+            if (svgs.length >= 2) {
+                svgs[0].onclick = function(){ window.openEditCard(card.id); };
+                svgs[1].onclick = function(){ if(confirm('确定删除这张字卡吗？')){ var arr=[]; for(var k=0;k<libraryData.cards.length;k++) if(String(libraryData.cards[k].id)!==cid) arr.push(libraryData.cards[k]); libraryData.cards=arr; if(selectedCards[cid]){ delete selectedCards[cid]; selectedCardsCount--; } window.saveData(); window.renderLib(); } };
+            }
+            
+            el.appendChild(cb); el.appendChild(txt); el.appendChild(ops); list.appendChild(el);
+        })(filtered[m]);
+    }
+};
+
+window.scrollLibToTop = function(){ document.getElementById('libCardList').scrollTop = 0; };
+window.scrollLibToBottom = function(){ document.getElementById('libCardList').scrollTop = document.getElementById('libCardList').scrollHeight; };
+
+window.toggleSelAll = function(checked) {
+    var q = document.getElementById('libSearchInp').value.replace(/^\s+|\s+$/g, '').toLowerCase();
+    for (var i=0; i<libraryData.cards.length; i++) {
+        var c = libraryData.cards[i];
+        if (currentGroupFilter === '全部') { if (c.group === '拍一拍') continue; }
+        else { if (c.group !== currentGroupFilter) continue; }
+        if (q && (c.text||'').toLowerCase().indexOf(q) === -1) continue;
+        var cid = String(c.id);
+        if (checked) { if(!selectedCards[cid]) { selectedCards[cid]=true; selectedCardsCount++; } }
+        else { if(selectedCards[cid]) { delete selectedCards[cid]; selectedCardsCount--; } }
+    }
+    window.renderLib();
+};
+
+window.openEditCard = function(id) {
+    var strId = String(id);
+    var card = null; 
+    for(var i=0;i<libraryData.cards.length;i++) {
+        if(String(libraryData.cards[i].id) === strId) { card=libraryData.cards[i]; break; }
+    }
+    if(!card) return; 
+    editingId = card.id;
+    document.getElementById('editCardText').value = card.text;
+    var sel = document.getElementById('editCardGroup'); sel.innerHTML = '';
+    for(var j=0;j<libraryData.groups.length;j++) { var g=libraryData.groups[j]; var o=document.createElement('option'); o.value=g; o.textContent=g; if(g===card.group) o.selected=true; sel.appendChild(o); }
+    document.getElementById('editPatTip').style.display = sel.value==='拍一拍'?'block':'none';
+    sel.onchange = function(){ document.getElementById('editPatTip').style.display = sel.value==='拍一拍'?'block':'none'; };
+    document.getElementById('cardEditOverlay').style.display = 'flex';
+};
+
+window.saveCardEdit = function() {
+    var txt = document.getElementById('editCardText').value.replace(/^\s+|\s+$/g, '');
+    if(!txt) { alert('内容不能为空'); return; }
+    var grp = document.getElementById('editCardGroup').value;
+    var strId = String(editingId);
+    for(var i=0;i<libraryData.cards.length;i++) {
+        if(String(libraryData.cards[i].id)===strId) { 
+            libraryData.cards[i].text=txt; 
+            libraryData.cards[i].group=grp; 
+            break; 
+        }
+    }
+    window.saveData(); window.renderLib(); window.closeModal('cardEditOverlay');
+};
+
+window.openBatchAdd = function() {
+    document.getElementById('batchAddTextArea').value = '';
+    var sel = document.getElementById('batchAddGroup'); sel.innerHTML = '';
+    for(var i=0;i<libraryData.groups.length;i++) { var g=libraryData.groups[i]; var o=document.createElement('option'); o.value=g; o.textContent=g; if(g===currentGroupFilter||currentGroupFilter==='全部') o.selected=true; sel.appendChild(o); }
+    document.getElementById('batchAddPatTip').style.display = sel.value==='拍一拍'?'block':'none';
+    sel.onchange = function(){ document.getElementById('batchAddPatTip').style.display = sel.value==='拍一拍'?'block':'none'; };
+    document.getElementById('cardBatchAddOverlay').style.display = 'flex';
+};
+
+window.saveBatchAdd = function() {
+    var txt = document.getElementById('batchAddTextArea').value;
+    var grp = document.getElementById('batchAddGroup').value;
+    var lines = txt.split('\n');
+    var added = 0;
+    for(var i=0;i<lines.length;i++) { 
+        if(lines[i].replace(/^\s+|\s+$/g, '')) { 
+            libraryData.cards.push({ id: 'card_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), group: grp, text: lines[i].replace(/^\s+|\s+$/g, '') }); 
+            added++; 
+        } 
+    }
+    if(added>0) { window.saveData(); window.renderLib(); window.closeModal('cardBatchAddOverlay'); }
+};
+
+window.doDedupCards = function() {
+    var seen={}, unique=[];
+    for(var i=0;i<libraryData.cards.length;i++) if(!seen[libraryData.cards[i].text]) { seen[libraryData.cards[i].text]=true; unique.push(libraryData.cards[i]); }
+    if(unique.length===libraryData.cards.length) { alert('没有发现重复字卡'); return; }
+    var r = libraryData.cards.length - unique.length;
+    libraryData.cards = unique; window.saveData(); window.renderLib(); alert('已去除 ' + r + ' 张重复字卡');
+};
+
+window.doBatchDel = function() {
+    if(selectedCardsCount===0) { alert('请先勾选要删除的字卡'); return; }
+    if(!confirm('确定删除选中的 ' + selectedCardsCount + ' 张字卡吗？')) return;
+    var arr=[]; 
+    for(var i=0;i<libraryData.cards.length;i++) {
+        if(!selectedCards[String(libraryData.cards[i].id)]) arr.push(libraryData.cards[i]);
+    }
+    libraryData.cards = arr; selectedCards = {}; selectedCardsCount = 0; window.saveData(); window.renderLib();
+};
+
+window.doDelAll = function() {
+    if(!confirm('确定清空所有字卡吗？此操作不可恢复！')) return;
+    libraryData.cards = []; selectedCards = {}; selectedCardsCount = 0; window.saveData(); window.renderLib();
+};
+
+window.openMove = function() {
+    if(selectedCardsCount===0) { alert('请先勾选要移动的字卡'); return; }
+    movingIds = []; 
+    for(var k in selectedCards) if(selectedCards.hasOwnProperty(k)) movingIds.push(k); 
+    var sel = document.getElementById('moveTargetGroup'); sel.innerHTML = '';
+    for(var i=0;i<libraryData.groups.length;i++) { var o=document.createElement('option'); o.value=libraryData.groups[i]; o.textContent=libraryData.groups[i]; sel.appendChild(o); }
+    document.getElementById('moveGroupOverlay').style.display = 'flex';
+};
+
+window.confirmMove = function() {
+    var grp = document.getElementById('moveTargetGroup').value;
+    for(var i=0;i<libraryData.cards.length;i++) {
+        if(movingIds.indexOf(String(libraryData.cards[i].id)) !== -1) {
+            libraryData.cards[i].group = grp;
+        }
+    }
+    selectedCards = {}; selectedCardsCount = 0; window.saveData(); window.renderLib(); window.closeModal('moveGroupOverlay');
+};
+
+window.openGroupManage = function() {
+    var list = document.getElementById('groupManageList'); list.innerHTML = '';
+    for(var i=0;i<libraryData.groups.length;i++) {
+        (function(g){
+            var div = document.createElement('div'); div.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f5;';
+            var cnt=0; for(var j=0;j<libraryData.cards.length;j++) if(libraryData.cards[j].group===g) cnt++;
+            var left = document.createElement('div'); left.innerHTML = '<span style="font-size:14px;">'+g+'</span> <span style="font-size:11px;color:#999;">('+cnt+'张)</span>';
+            var btn = document.createElement('button'); btn.textContent='删除'; btn.style.cssText='color:#ff3b30;background:none;border:none;font-size:12px;cursor:pointer;';
+            btn.onclick = function(){ if(libraryData.groups.length<=1){alert('至少保留一个分组');return;} deleteGroupTarget=g; document.getElementById('deleteGroupText').textContent='确定要删除分组「'+g+'」吗？'; document.getElementById('deleteGroupCardsCheckbox').checked=false; document.getElementById('deleteGroupOverlay').style.display='flex'; };
+            div.appendChild(left); div.appendChild(btn); list.appendChild(div);
+        })(libraryData.groups[i]);
+    }
+    document.getElementById('groupManageOverlay').style.display = 'flex';
+};
+
+window.addNewGroup = function() {
+    var v = document.getElementById('newGroupName').value.replace(/^\s+|\s+$/g, '');
+    if(!v) return; if(libraryData.groups.indexOf(v)!==-1){ alert('分组已存在'); return; }
+    libraryData.groups.push(v); document.getElementById('newGroupName').value=''; window.saveData(); window.openGroupManage(); window.renderLib();
+};
+
+window.confirmDeleteGroup = function() {
+    var g = deleteGroupTarget; if(!g) return;
+    var delCards = document.getElementById('deleteGroupCardsCheckbox').checked;
+    var arrG=[]; for(var i=0;i<libraryData.groups.length;i++) if(libraryData.groups[i]!==g) arrG.push(libraryData.groups[i]); libraryData.groups=arrG;
+    if(delCards) { var arrC=[]; for(var j=0;j<libraryData.cards.length;j++) if(libraryData.cards[j].group!==g) arrC.push(libraryData.cards[j]); libraryData.cards=arrC; }
+    else { for(var k=0;k<libraryData.cards.length;k++) if(libraryData.cards[k].group===g) libraryData.cards[k].group='默认分组'; }
+    if(currentGroupFilter===g) currentGroupFilter='全部';
+    window.saveData(); window.closeModal('deleteGroupOverlay'); window.openGroupManage(); window.renderLib();
+};
+
+// ====== 聊天核心 ======
+window.padZero = function(n){ return n<10?'0'+n:''+n; };
+window.getTimeStr = function(ts){ var d=ts?new Date(ts):new Date(); var h=d.getHours(), m=window.padZero(d.getMinutes()), s=window.padZero(d.getSeconds()); var ampm=h>=12?'PM':'AM'; h=h%12; if(h===0)h=12; return h+':'+m+':'+s+' '+ampm; };
+window.getDateStr = function(ts){ var d=ts?new Date(ts):new Date(); return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; };
+window.genId = function(){ return 'msg_'+Date.now()+'_'+Math.random().toString(36).slice(2,6); };
+window.calcVoiceDuration = function(t){ var l=(t&&t.length)||0; return Math.max(3, Math.min(30, 3 + Math.round(l/5)))+'"'; };
+window.scrollToBottom = function(){ var ca=document.getElementById('chatArea'); if(ca) ca.scrollTop=ca.scrollHeight; };
+
+window.insertDateDiv = function(dStr) {
+    var ca = document.getElementById('chatArea');
+    var div = document.createElement('div'); div.className='date-divider'; div.innerHTML='<span>'+dStr+'</span>';
+    ca.appendChild(div);
+};
+
+window.buildVoiceBubble = function(bubble, vData) {
+    bubble.className += ' voice-bubble';
+    var vh=document.createElement('div'); vh.className='vh';
+    var vpb=document.createElement('div'); vpb.className='vpb';
+    var wave=document.createElement('div'); wave.className='vw';
+    for(var w=0;w<7;w++) wave.appendChild(document.createElement('span'));
+    var de=document.createElement('span'); de.className='vd'; de.textContent=vData.duration;
+    vh.appendChild(vpb); vh.appendChild(wave); vh.appendChild(de);
+    var vt=document.createElement('div'); vt.className='vt';
+    var vtt=document.createElement('div'); vtt.className='vtt'; vtt.textContent='Transcript';
+    var vtx=document.createElement('div'); vtx.className='vtx'; vtx.textContent=vData.transcript;
+    vt.appendChild(vtt); vt.appendChild(vtx);
+    bubble.appendChild(vh); bubble.appendChild(vt);
+    var ct=null; bubble.onclick = function(ev){ if(ev)ev.preventDefault(); if(ct){clearTimeout(ct);ct=null; if(vt.style.display==='block')vt.style.display='none'; else vt.style.display='block'; return;} ct=setTimeout(function(){ct=null;},250); };
+};
+
+window.createRecallVoiceBar = function(vData) {
+    var bar = document.createElement('div'); bar.className='recall-voice-bar';
+    var vh=document.createElement('div'); vh.className='vh';
+    var vpb=document.createElement('div'); vpb.className='vpb';
+    var wave=document.createElement('div'); wave.className='vw';
+    for(var w=0;w<7;w++) wave.appendChild(document.createElement('span'));
+    var de=document.createElement('span'); de.className='vd'; de.textContent=vData.duration;
+    vh.appendChild(vpb); vh.appendChild(wave); vh.appendChild(de);
+    var vt=document.createElement('div'); vt.className='vt';
+    var vtt=document.createElement('div'); vtt.className='vtt'; vtt.textContent='Transcript';
+    var vtx=document.createElement('div'); vtx.className='vtx'; vtx.textContent=vData.transcript;
+    vt.appendChild(vtt); vt.appendChild(vtx);
+    bar.appendChild(vh); bar.appendChild(vt);
+    var ct=null; bar.onclick = function(ev){ ev.stopPropagation(); if(ct){clearTimeout(ct);ct=null; if(vt.style.display==='block')vt.style.display='none'; else vt.style.display='block'; return;} ct=setTimeout(function(){ct=null;},250); };
+    return bar;
+};
+
+window.renderMessage = function(rec) {
+    var ca = document.getElementById('chatArea');
+    if(rec.type === 'system') {
+        var sr = document.createElement('div'); sr.className='system-row';
+        var sb = document.createElement('div'); sb.className='system-bubble'+(rec.recall?' clickable':''); sb.textContent=rec.text;
+        sr.appendChild(sb);
+        if(rec.recall && rec.recalledItems && rec.recalledItems.length>0) {
+            var det = document.createElement('div'); det.className='recall-detail';
+            for(var i=0;i<rec.recalledItems.length;i++) {
+                var it = rec.recalledItems[i]; if(!it) continue;
+                var d = document.createElement('div'); d.className='recall-detail-item';
+                var cd = document.createElement('div'); cd.className='recall-detail-content';
+                if(it.type==='voice' && it.voiceData) cd.appendChild(window.createRecallVoiceBar(it.voiceData));
+                else if(it.type==='image' && it.imgUrl) { var im=document.createElement('img'); im.className='recall-img-thumb'; im.src=it.imgUrl; cd.appendChild(im); }
+                else cd.textContent=it.content;
+                var td = document.createElement('div'); td.className='recall-detail-time'; td.textContent=window.getTimeStr(it.ts);
+                d.appendChild(cd); d.appendChild(td); det.appendChild(d);
+            }
+            sr.appendChild(det);
+            sb.onclick = function(){ det.style.display = det.style.display==='block'?'none':'block'; };
+        }
+        ca.appendChild(sr); return;
+    }
+    
+    var row = document.createElement('div'); row.className='message-row '+(rec.isUser?'user':'reply'); if(rec.id) row.id=rec.id;
+    if(rec.showTime) { var tm=document.createElement('div'); tm.className='time'; tm.textContent=window.getTimeStr(rec.ts); row.appendChild(tm); }
+    var br = document.createElement('div'); br.className='bubble-row';
+    var bb = document.createElement('div'); bb.className='bubble '+(rec.isUser?'message-sent':'message-received');
+    if(rec.imgUrl) { bb.className += ' image-bubble'; var img=document.createElement('img'); img.src=rec.imgUrl; bb.appendChild(img); }
+    else if(rec.voiceData) { window.buildVoiceBubble(bb, rec.voiceData); }
+    else { bb.textContent = rec.text; }
+    
+    if(!rec.isUser) {
+        var qb = document.createElement('button'); qb.className='quote-btn'; qb.innerHTML = SVG_QUOTE;
+        (function(r){ qb.onclick = function(){ pendingQuote = { type: r.imgUrl?'image':'text', content: r.imgUrl||(r.voiceData?r.voiceData.transcript:r.text) }; window.updateQuotePreview(); }; })(rec);
+        br.appendChild(bb); br.appendChild(qb);
+    } else { br.appendChild(bb); }
+    row.appendChild(br);
+    
+    if(rec.quote) {
+        var qt = document.createElement('div'); qt.className='quote-block';
+        if(rec.quote.type==='image') { var qimg=document.createElement('img'); qimg.src=rec.quote.content; qt.appendChild(qimg); }
+        else { qt.textContent=rec.quote.content; }
+        if(rec.quote.id) {
+            (function(qid){ qt.onclick = function(e){ e.stopPropagation(); var t=document.getElementById(qid); if(t){ t.scrollIntoView({behavior:'smooth',block:'center'}); t.className+=' highlight-anim'; setTimeout(function(){ t.className = t.className.replace(' highlight-anim',''); }, 600); } }; })(rec.quote.id);
+        }
+        row.appendChild(qt);
+    }
+    ca.appendChild(row);
+};
+
+window.sendSysMsg = function(text, recall, items) {
+    var ts = Date.now(); var dStr = window.getDateStr(ts);
+    if(dStr !== lastMsgDateStr) { window.insertDateDiv(dStr); lastMsgDateStr = dStr; }
+    var rec = { id: window.genId(), type:'system', text:text, ts:ts, recall:!!recall, recalledItems:items||[] };
+    chatHistory.push(rec); window.saveChat(); window.renderMessage(rec); window.scrollToBottom(); return rec;
+};
+
+window.sendChatMsg = function(text, isUser, quote, imgUrl, voiceData, customId, segments) {
+    if(isUser===undefined) isUser=true;
+    var ts = Date.now(); var dStr = window.getDateStr(ts);
+    if(dStr !== lastMsgDateStr) { window.insertDateDiv(dStr); lastMsgDateStr = dStr; }
+    var st = false;
+    if(isUser) { if(ts-lastUserTs>=5000) { st=true; lastUserTs=ts; } }
+    else { if(ts-lastReplyTs>=5000) { st=true; lastReplyTs=ts; } }
+    var rec = { id: customId||window.genId(), text: text||'', isUser: !!isUser, quote: quote?{type:quote.type,content:quote.content,id:quote.id||null}:null, imgUrl: imgUrl||null, voiceData: voiceData||null, ts: ts, showTime: st, segments: segments||null };
+    chatHistory.push(rec); window.saveChat(); window.renderMessage(rec); window.scrollToBottom(); return rec;
+};
+
+window.loadHistory = function() {
+    var ca = document.getElementById('chatArea'); var cd = '';
+    for(var i=0;i<chatHistory.length;i++) {
+        var rec = chatHistory[i]; if(!rec || !rec.ts) rec.ts=Date.now();
+        var dStr = window.getDateStr(rec.ts);
+        if(dStr !== cd) { window.insertDateDiv(dStr); cd = dStr; }
+        window.renderMessage(rec);
+    }
+    if(!cd) { lastMsgDateStr = window.getDateStr(); window.insertDateDiv(lastMsgDateStr); }
+    else lastMsgDateStr = cd;
+    
+    var lu=null, lr=null;
+    for(var j=chatHistory.length-1;j>=0;j--) {
+        if(chatHistory[j].isUser && !lu) lu=chatHistory[j];
+        if(!chatHistory[j].isUser && !lr && chatHistory[j].type!=='system') lr=chatHistory[j];
+        if(lu&&lr) break;
+    }
+    lastUserTs = lu?lu.ts:0; lastReplyTs = lr?lr.ts:0;
+    userHistory = []; var ur = [];
+    for(var k=0;k<chatHistory.length;k++) if(chatHistory[k] && chatHistory[k].isUser) ur.push(chatHistory[k]);
+    var st = Math.max(0, ur.length-20);
+    for(var m=st;m<ur.length;m++) { var r=ur[m]; userHistory.push({ id:r.id, type:r.imgUrl?'image':'text', content:r.imgUrl||r.text||'' }); }
+    window.scrollToBottom();
+};
+
+window.updateQuotePreview = function() {
+    var qp = document.getElementById('quotePreview'); var qpt = document.getElementById('quotePreviewText');
+    if(!pendingQuote) { qp.style.display='none'; return; }
+    qpt.innerHTML = pendingQuote.type==='image' ? '<span>正在引用图片:</span> <img src="'+pendingQuote.content+'">' : '正在引用: '+pendingQuote.content;
+    qp.style.display = 'flex'; document.getElementById('emojiPanel').style.display='none';
+};
+
+window.makeRecallItem = function(r) {
+    if(!r) return null;
+    if(r.voiceData) return { type:'voice', content:r.voiceData.transcript||'', voiceData:r.voiceData, ts:r.ts };
+    if(r.imgUrl) return { type:'image', content:'[图片]', imgUrl:r.imgUrl, ts:r.ts };
+    if(r.type==='system') return { type:'system', content:r.text||'', ts:r.ts };
+    return { type:'text', content:r.text||'', ts:r.ts };
+};
+
+window.tryRecall = function(records) {
+    if(!records || records.length===0) return;
+    if(Math.random()*100 >= settings.recallProb) return;
+    var recent = []; for(var i=0;i<records.length;i++) { var r=records[i]; if(r && !r.isUser && (r.type!=='system' || !r.recall)) recent.push(r); }
+    if(recent.length===0) return;
+    var target = recent[recent.length-1]; var recalled = [];
+    
+    if(target.segments && target.segments.length>1) {
+        var rc = Math.random()<0.7?1:Math.min(2, target.segments.length);
+        var segs = target.segments.slice();
+        for(var s=0;s<rc&&segs.length>0;s++) { var idx=Math.floor(Math.random()*segs.length); recalled.push({type:'text', content:segs[idx], ts:target.ts}); segs.splice(idx,1); }
+        if(segs.length>0) { target.segments=segs; target.text=segs.join('\n'); document.getElementById('chatArea').innerHTML=''; lastMsgDateStr=''; window.loadHistory(); }
+        else { var ti=chatHistory.indexOf(target); if(ti!==-1) chatHistory.splice(ti,1); window.sendSysMsg(settings.name+' 撤回了 '+recalled.length+' 条消息', true, recalled); document.getElementById('chatArea').innerHTML=''; lastMsgDateStr=''; window.loadHistory(); }
+    } else {
+        var item = window.makeRecallItem(target); if(item) recalled.push(item);
+        var idx2=chatHistory.indexOf(target); if(idx2!==-1) chatHistory.splice(idx2,1);
+        if(recent.length>=2 && Math.random()<0.2) { var t2=recent[recent.length-2]; var it2=window.makeRecallItem(t2); if(it2) recalled.push(it2); var idx3=chatHistory.indexOf(t2); if(idx3!==-1) chatHistory.splice(idx3,1); }
+        window.sendSysMsg(settings.name+' 撤回了 '+recalled.length+' 条消息', true, recalled);
+        document.getElementById('chatArea').innerHTML=''; lastMsgDateStr=''; window.loadHistory();
+    }
+};
+
+window.cancelQuote = function() { pendingQuote = null; document.getElementById('quotePreview').style.display='none'; };
+
+window.handleSend = function() {
+    var mi = document.getElementById('msgInput'); var txt = mi.value.replace(/^\s+|\s+$/g, '');
+    if(!txt) return;
+    var mid = window.genId(); userHistory.push({ id:mid, type:'text', content:txt }); if(userHistory.length>20) userHistory.shift();
+    window.sendChatMsg(txt, true, pendingQuote, null, null, mid);
+    mi.value=''; window.cancelQuote(); document.getElementById('emojiPanel').style.display='none';
+    window.triggerReply();
+};
+
+window.triggerReply = function() {
+    var min = Math.max(0, parseFloat(settings.delayMin)||1);
+    var max = Math.max(min, parseFloat(settings.delayMax)||3);
+    var delay = (Math.random()*(max-min)+min)*1000;
+    setTimeout(function() {
+        if(Math.random()*100 < (parseFloat(settings.patProb)||0)) {
+            var suffix = ''; var pats=[];
+            for(var i=0;i<libraryData.cards.length;i++) if(libraryData.cards[i] && libraryData.cards[i].group==='拍一拍') pats.push(libraryData.cards[i]);
+            if(pats.length>0) suffix = pats[Math.floor(Math.random()*pats.length)].text || '';
+            var pr = window.sendSysMsg(settings.name+' 拍了拍我'+(suffix?' '+suffix:''), false);
+            if(pr) window.tryRecall([pr]); return;
+        }
+        
+        var valid=[]; for(var j=0;j<libraryData.cards.length;j++){ var c=libraryData.cards[j]; if(c&&c.group!=='拍一拍'&&c.text) valid.push(c); }
+        var ta = valid.length>0; var ia = emojiStore.image && emojiStore.image.length>0;
+        if(!ta && !ia) { window.sendChatMsg('（字卡库和表情包都是空的哦）', false); return; }
+        
+        var rq = null; if(userHistory.length>0 && Math.random()*100<(parseFloat(settings.quoteChance)||0)) { var q=userHistory[Math.floor(Math.random()*userHistory.length)]; if(q) rq={type:q.type, content:q.content, id:q.id}; }
+        var wt = ta?(parseFloat(settings.weightText)||0):0, wv = ta?(parseFloat(settings.weightVoice)||0):0, wi = ia?(parseFloat(settings.weightImage)||0):0;
+        var tw = wt+wv+wi; if(tw===0 && ta) tw=wt=100;
+        var r = Math.random()*tw; var rt = 'text'; if(r<wt) rt='text'; else if(r<wt+wv) rt='voice'; else rt='image';
+        
+        var newRecs = [];
+        function getC(){ var cc=valid[Math.floor(Math.random()*valid.length)]; return cc?cc.text:''; }
+        
+        if(rt==='voice') {
+            var txt = getC(); var dur = window.calcVoiceDuration(txt);
+            var rec = window.sendChatMsg('', false, rq, null, { duration: dur, transcript: txt }); if(rec) newRecs.push(rec);
+        } else if(rt==='image') {
+            var rec2 = window.sendChatMsg('', false, rq, emojiStore.image[Math.floor(Math.random()*emojiStore.image.length)]); if(rec2) newRecs.push(rec2);
+        } else {
+            if(settings.enableCombine) {
+                var minC=Math.max(1,parseInt(settings.combineMin)||1), maxC=Math.max(minC,parseInt(settings.combineMax)||3);
+                var count = Math.floor(Math.pow(Math.random(),0.5)*(maxC-minC+1))+minC; count=Math.min(count, valid.length);
+                if(count===0) return;
+                var sh = valid.slice().sort(function(){return 0.5-Math.random();}); var sel = sh.slice(0,count);
+                var segs=[]; for(var si=0;si<sel.length;si++) segs.push(sel[si].text);
+                var rec3 = window.sendChatMsg(segs.join('\n'), false, rq, null, null, null, segs); if(rec3) newRecs.push(rec3);
+            } else {
+                var cr = Math.random(); var cc2 = cr<0.75?1:(cr<0.95?2:3); cc2=Math.min(cc2, valid.length);
+                var sh2 = valid.slice().sort(function(){return 0.5-Math.random();}); var sel2 = sh2.slice(0,cc2);
+                for(var ci=0;ci<sel2.length;ci++) {
+                    var obj=sel2[ci]; var ft=obj.text; var ai=null, ae=null;
+                    if(emojiStore.image&&emojiStore.image.length>0&&Math.random()*100<(parseFloat(settings.attachImageProb)||0)) ai=emojiStore.image[Math.floor(Math.random()*emojiStore.image.length)];
+                    if(emojiStore.emoji&&emojiStore.emoji.length>0&&Math.random()*100<(parseFloat(settings.attachEmojiProb)||0)) ae=emojiStore.emoji[Math.floor(Math.random()*emojiStore.emoji.length)];
+                    if(ae&&settings.mixedMode) { if(Math.random()<0.5) ft=ae+' '+ft; else ft=ft+' '+ae; ae=null; }
+                    var ra = window.sendChatMsg(ft, false, ci===0?rq:null); if(ra) newRecs.push(ra);
+                    if(ae) { var rb=window.sendChatMsg(ae,false); if(rb) newRecs.push(rb); }
+                    if(ai) { var rc2=window.sendChatMsg('',false,null,ai); if(rc2) newRecs.push(rc2); }
+                }
+            }
+        }
+        window.tryRecall(newRecs);
+    }, delay);
+};
+
+// ====== 表情包面板 ======
+window.switchEmojiTab = function(type, el) {
+    var tabs = document.getElementsByClassName('emoji-tab');
+    for(var i=0;i<tabs.length;i++) tabs[i].className = 'emoji-tab';
+    el.className = 'emoji-tab active';
+    currentEmojiTab = type; isMultiSelect = false; selectedItems = {}; selectedItemsCount = 0;
+    document.getElementById('multiSelectBtn').textContent='多选删除'; document.getElementById('multiSelectBtn').style.color='#666';
+    window.renderEmojiGrid();
+};
+
+window.toggleEmojiPanel = function(e) {
+    e.stopPropagation(); document.getElementById('msgInput').blur();
+    var p = document.getElementById('emojiPanel');
+    if(p.style.display==='flex') p.style.display='none';
+    else { p.style.display='flex'; isMultiSelect=false; selectedItems={}; selectedItemsCount=0; document.getElementById('multiSelectBtn').textContent='多选删除'; document.getElementById('multiSelectBtn').style.color='#666'; window.renderEmojiGrid(); window.scrollToBottom(); }
+};
+
+document.addEventListener('click', function(e) {
+    var p = document.getElementById('emojiPanel'); var b = document.querySelector('.emoji-btn');
+    if(p && !p.contains(e.target) && (!b || !b.contains(e.target))) p.style.display='none';
+});
+
+window.toggleMultiSelect = function() {
+    var btn = document.getElementById('multiSelectBtn');
+    if(!isMultiSelect) { isMultiSelect=true; selectedItems={}; selectedItemsCount=0; btn.textContent='取消多选'; btn.style.color='var(--theme-color)'; window.renderEmojiGrid(); }
+    else {
+        if(selectedItemsCount>0 && confirm('确定删除选中的 '+selectedItemsCount+' 项吗？')) { var arr=emojiStore[currentEmojiTab]; var nArr=[]; for(var i=0;i<arr.length;i++) if(!selectedItems[arr[i]]) nArr.push(arr[i]); emojiStore[currentEmojiTab]=nArr; window.saveEmoji(); }
+        isMultiSelect=false; selectedItems={}; selectedItemsCount=0; btn.textContent='多选删除'; btn.style.color='#666'; window.renderEmojiGrid();
+    }
+};
+
+window.openEmojiAdd = function() {
+    if(currentEmojiTab==='image') document.getElementById('imageModalOverlay').style.display='flex';
+    else { document.getElementById('emojiInputArea').value=''; document.getElementById('emojiModalTitle').textContent=currentEmojiTab==='emoji'?'批量添加 Emoji':'批量添加 颜文字'; document.getElementById('emojiModalDesc').textContent='输入内容（空格/换行分隔，自动去重）。'; document.getElementById('emojiModalOverlay').style.display='flex'; }
+};
+
+window.saveEmojiAdd = function() {
+    var v = document.getElementById('emojiInputArea').value.replace(/^\s+|\s+$/g, '');
+    if(v) { var items = v.split(/[\s\n]+/); var existing = emojiStore[currentEmojiTab]; for(var i=0;i<items.length;i++) { if(items[i] && existing.indexOf(items[i])===-1) existing.push(items[i]); } window.saveEmoji(); window.renderEmojiGrid(); }
+    window.closeModal('emojiModalOverlay');
+};
+
+window.handleImageUpload = function(e) {
+    var files = e.target.files; if(!files.length) return;
+    var proc=0, news=[];
+    for(var i=0;i<files.length;i++) {
+        (function(f){
+            var r = new FileReader();
+            r.onload = function(ev) { 
+                news.push(ev.target.result); proc++; 
+                if(proc===files.length) { 
+                    var ex = emojiStore.image; 
+                    for(var k=0;k<news.length;k++) if(ex.indexOf(news[k])===-1) ex.push(news[k]); 
+                    window.saveEmoji(); window.renderEmojiGrid(); window.closeModal('imageModalOverlay'); e.target.value=''; 
+                } 
+            };
+            r.readAsDataURL(f);
+        })(files[i]);
+    }
+};
+
+window.clearEmojiTab = function() {
+    if(emojiStore[currentEmojiTab].length===0) return;
+    if(confirm('确定要清空当前分区的所有内容吗？')) { emojiStore[currentEmojiTab]=[]; window.saveEmoji(); isMultiSelect=false; selectedItems={}; selectedItemsCount=0; document.getElementById('multiSelectBtn').textContent='多选删除'; document.getElementById('multiSelectBtn').style.color='#666'; window.renderEmojiGrid(); }
+};
+
+window.renderEmojiGrid = function() {
+    var g = document.getElementById('emojiGrid'); g.innerHTML='';
+    var list = emojiStore[currentEmojiTab]||[];
+    if(list.length===0) { g.innerHTML='<div class="empty-emoji">暂无内容，点击批量添加</div>'; return; }
+    for(var i=0;i<list.length;i++) {
+        (function(item){
+            var el = document.createElement('div'); el.className='emoji-item'+(isMultiSelect?' multi-select-mode':'')+(selectedItems[item]?' selected':'');
+            if(currentEmojiTab==='image') el.innerHTML = '<img src="'+item+'">'; else el.textContent = item;
+            var cb = document.createElement('div'); cb.className='emoji-checkbox'; cb.innerHTML='✓'; el.appendChild(cb);
+            el.onclick = function(e) {
+                if(e.target.classList && e.target.classList.contains('emoji-delete-btn')) return;
+                if(isMultiSelect) { if(selectedItems[item]) { delete selectedItems[item]; selectedItemsCount--; el.classList.remove('selected'); } else { selectedItems[item]=true; selectedItemsCount++; el.classList.add('selected'); } document.getElementById('multiSelectBtn').textContent = selectedItemsCount>0?'删除选中('+selectedItemsCount+')':'删除选中'; return; }
+                var mid = window.genId();
+                if(currentEmojiTab==='image') { userHistory.push({id:mid,type:'image',content:item}); if(userHistory.length>20) userHistory.shift(); window.sendChatMsg('', true, pendingQuote, item, null, mid); }
+                else { userHistory.push({id:mid,type:'text',content:item}); if(userHistory.length>20) userHistory.shift(); window.sendChatMsg(item, true, pendingQuote, null, null, mid); }
+                window.cancelQuote(); document.getElementById('emojiPanel').style.display='none'; window.triggerReply();
+            };
+            var del = document.createElement('div'); del.className='emoji-delete-btn'; del.textContent='×';
+            del.onclick = function(e) { e.stopPropagation(); var arr = emojiStore[currentEmojiTab]; var idx = arr.indexOf(item); if(idx!==-1) arr.splice(idx,1); window.saveEmoji(); window.renderEmojiGrid(); };
+            el.appendChild(del); g.appendChild(el);
+        })(list[i]);
+    }
+};
+
+// ====== 数据清理 ======
+window.closeModal = function(id) { var el = document.getElementById(id); if(el) el.style.display='none'; };
+
+// 导出所有数据
+window.exportAllData = function() {
+    var data = {
+        __type: 'yume_full_backup',
+        cards: libraryData.cards,
+        groups: libraryData.groups,
+        emoji: emojiStore,
+        settings: settings,
+        chat: chatHistory
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'yume_full_backup_' + new Date().getTime() + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+};
+
+// 导入所有数据
+window.importAllData = function(e) {
+    var f = e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev) {
+        try {
+            var d = JSON.parse(ev.target.result);
+            if(!d.settings || !d.cards) { alert('备份文件格式不正确或已损坏'); return; }
+            
+            localStorage.setItem(KEY_CARDS, JSON.stringify(d.cards));
+            localStorage.setItem(KEY_GROUPS, JSON.stringify(d.groups));
+            localStorage.setItem(KEY_EMOJI, JSON.stringify(d.emoji));
+            localStorage.setItem(KEY_SETTINGS, JSON.stringify(d.settings));
+            localStorage.setItem(KEY_CHAT, JSON.stringify(d.chat));
+            
+            alert('导入成功！页面即将刷新以应用数据。');
+            location.reload();
+        } catch(err) {
+            alert('导入失败，文件损坏或格式不匹配。');
+        }
+        e.target.value = '';
+    };
+    r.readAsText(f);
+};
+
+// 仅导出字卡
+window.exportCards = function() {
+    if(libraryData.cards.length===0){ alert('字卡库为空'); return; }
+    var data = { groups: libraryData.groups, cards: libraryData.cards };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'yume_cards.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+};
+
+// 仅导入字卡
+window.importCards = function(e) {
+    var f = e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev) {
+        try {
+            var p = JSON.parse(ev.target.result);
+            if(Array.isArray(p)) { 
+                libraryData.cards = p.map(function(t,i){ 
+                    return { id: 'card_' + Date.now() + '_' + i, group: '默认分组', text: typeof t==='string' ? t : t.text }; 
+                }); 
+            }
+            else if(p && p.cards) { 
+                libraryData.cards = p.cards.map(function(c, i){
+                    return { id: 'card_' + Date.now() + '_' + i, group: c.group || '默认分组', text: c.text };
+                });
+                if(p.groups) libraryData.groups = p.groups; 
+            }
+            if(libraryData.groups.indexOf('拍一拍')===-1) libraryData.groups.push('拍一拍');
+            window.saveData(); window.renderLib(); alert('导入成功！');
+        } catch(err) { alert('导入失败，格式错误'); }
+        e.target.value = '';
+    };
+    r.readAsText(f);
+};
+
+window.clearChat = function() {
+    if(!confirm('确定删除当前聊天记录吗？不可恢复。')) return;
+    document.getElementById('chatArea').innerHTML=''; chatHistory=[]; userHistory=[]; lastUserTs=0; lastReplyTs=0;
+    try { localStorage.removeItem(KEY_CHAT); } catch(e){}
+    lastMsgDateStr = window.getDateStr(); window.insertDateDiv(lastMsgDateStr); window.cancelQuote();
+};
+
+window.clearEmojis = function() { if(confirm('清空所有表情包？')) { emojiStore={emoji:[],kaomoji:[],image:[]}; window.saveEmoji(); window.renderEmojiGrid(); } };
+window.resetAll = function() { if(confirm('警告！这会清空所有记录、字卡、表情和设置，恢复出厂吗？')) { localStorage.clear(); location.reload(); } };
+
+// ====== 启动 ======
+window.onload = function() {
+    window.loadData();
+    window.applySettingsToUI();
+    window.loadHistory();
+};
+</script>
+</body>
+</html>
